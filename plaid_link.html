@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plaid Link Test</title>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+</head>
+<body>
+    <h2>Connect Your Bank Account</h2>
+    <button id="link-button">Link Bank Account</button>
+
+    <script>
+        async function getLinkToken() {
+            const response = await fetch('http://localhost:5000/get_link_token');
+            const data = await response.json();
+            return data.link_token;
+        }
+
+        async function initializeLink() {
+            const linkToken = await getLinkToken();
+            const handler = Plaid.create({
+                token: linkToken,
+                onSuccess: function(public_token, metadata) {
+                    alert("Public Token: " + public_token);
+                    console.log("Public Token:", public_token);
+                },
+                onExit: function(err, metadata) {
+                    if (err != null) {
+                        console.error("Error:", err);
+                    }
+                },
+            });
+            handler.open();
+        }
+
+        document.getElementById('link-button').addEventListener('click', initializeLink);
+    </script>
+</body>
+</html>
